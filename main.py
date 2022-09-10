@@ -110,7 +110,8 @@ def traspuestaMatriz(matriz):
             matriz[k][i] = matriz[i][k]
             matriz[i][k] = objeto
     return matriz
-
+matriz = [[1,2],[1,2]]
+transpuestaMatriz(matriz)
 ##Conjugada de una matriz/vector                                                #8
 def conjugadaMatriz(matrizComplex1):
     matriz_f = []
