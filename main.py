@@ -3,6 +3,7 @@
 Created on Mon Aug 26 18:57:39 2022
 @author: Oscar Lesmes
 """
+import copy
 import math
 ##FUNCIONES AUXILIARES
 def sumaComplejos(numero1, numero2):
@@ -21,6 +22,12 @@ def conjugadoComplejo(numero1):
     conjugadoImaginario = numero1[1] * -1
     res = (numero1[0], conjugadoImaginario)
     return (res)
+
+def multiplicacionComplejos(numero1, numero2):      #3
+    res = ()
+    res = ((numero1[0]*numero2[0])-(numero1[1]*numero2[1]), (numero1[0]*numero2[1])+(numero2[0]*numero1[1]))
+    return (res)
+
 ###################################################
 
 ##Adición de vectores complejos.                                           #1
@@ -50,7 +57,6 @@ def multiplicacionEscalarVectorComplejo(numero, v1Complx):
     for i in range(len(v1Complx)):
         vector += [multiplicacionEscalarAComplejo(numero, v1Complx[i])]
     return vector
-
 numero = 0
 v1Complx = [(1,1),(1,1)]
 multiplicacionEscalarVectorComplejo(numero, v1Complx)
@@ -108,14 +114,14 @@ def traspuestaMatriz(matriz):
 ##Conjugada de una matriz/vector                                                #8
 def conjugadaMatriz(matrizComplex1):
     matriz_f = []
-    for i in range(len(matrizComplx1)):
-        matriz_f.append([0] * len(matrizComplx1[i]))
+    for i in range(len(matrizComplex1)):
+        matriz_f.append([0] * len(matrizComplex1[i]))
 
     for i in range(len(matrizComplex1)):
         for k in range(len(matrizComplex1[i])):
             matriz_f[i][k] = conjugadoComplejo(matrizComplex1[i][k])
     return matriz_f
-matrizComplx1 = [[(1,1),(1,1)],[(1,1),(1,1)]]
+matrizComplx1 = [[(5,0),(4,5),(6,-16)],[(4,-5),(13,0),(7,0)],[(6,16),(7,0),(-2.1,0)]]
 conjugadaMatriz(matrizComplx1)
 
 ##Adjunta (daga) de una matriz/vector                                           #9
@@ -134,19 +140,28 @@ def productoMatrices(lines, lines1):
     for i in range(0, len(lines)):
         for k in range(0, len(matriz)):
             for j in range(0, len(matriz)):
-                matriz_0[i][k] += matriz[i][j] * matriz1[j][k]
+                numero_matriz1 = matriz[i][j]
+                numero_matriz2 = matriz1[j][k]
+                matriz_0[i][k] = multiplicacionComplejos(numero_matriz1,numero_matriz2)
     return matriz_0
 
-matriz = [[2,2],[2,2]]
-matriz1 = [[2,2],[2,2]]
+matriz = [[(2,2),(2,2)],[(2,2),(2,2)]]
+matriz1 = [[(2,2),(2,2)],[(2,2),(2,2)]]
 productoMatrices(matriz, matriz1)
 
 ##Función para calcular la "acción" de una matriz sobre un vector.               #11
-#def accionMatrizVector():
+def accionMatrizVector(matriz, vector):
+    vector_resultante = []
+    for i in range(len(vector)):
+        vector_resultante.append(0)
 
-
-
-
+    for i in range(len(matriz)):
+        for j in range(len(matriz[i])):
+            vector_resultante[i] += matriz[i][j]*vector[j]
+    return vector_resultante
+matriz = [[0,0,1,1],[0,0,1,-1],[1,1,0,0],[1,-1,0,0]]
+vector =[0,0,0,1]
+accionMatrizVector(matriz, vector)
 
 ##Producto interno de dos vectores                                               #12
 def productoInternoVectores(v1, v2):
@@ -161,7 +176,7 @@ productoInternoVectores(v1, v2)
 ##Norma de un vector                                                            #13
 def normaVector(v1):
     producto = 0
-    for i in range(v1):
+    for i in range(len(v1)):
         producto += v1[i] ** 2
     res = math.sqrt(producto)
     return res
@@ -179,17 +194,55 @@ v1, v2 = [1,2],[1,2]
 distanciaVectores(v1, v2)
 
 ##Revisar si una matriz es unitaria                                            #15
-#def esMatrizUnitaria():
+def identidad(matriz):
+    tama = len(matriz)
+    matriz_identidad = copy.deepcopy(matriz)
+    for i in range(tama):
+        for j in range(tama):
+            if i == j:
+                matriz_identidad[i][j] = 1
+            else:
+                matriz_identidad[i][j] = 0
+    return matriz_identidad
+def esMatrizUnitaria(matriz):
+    matriz_adjunta = adjuntaMatriz(matriz)
+    matriz_resultante = productoMatrices(matriz, matriz_adjunta)
+    matriz_identidad = identidad(matriz)
+    esUnitaria = True
+    for i in range(len(matriz_resultante)):
+        for j in range(len(matriz_resultante[i])):
+            if matriz_resultante[i][j] != matriz_identidad[i][j]:
+                esUnitaria = False
+    return esUnitaria
 
+matriz = [[(1/math.sqrt(2), 0),(1/math.sqrt(2), 0)],[(1/math.sqrt(2), 0),(-1/math.sqrt(2), 0)]]
+esMatrizUnitaria(matriz)
 
+##Revisar si una matriz es Hermitiana   A[j, k] = A[k, j] <- conjugada                                        #16
+def esMatrizHermitiana(matriz):
+    matriz_adjunta = adjuntaMatriz(matriz)
+    esHermitania = True
+    for i in range (len(matriz)):
+        for j in range (len(matriz[i])):
+            if matriz[i][j] != matriz_adjunta[i][j]:
+                esHermitania = False
+    return esHermitania
 
-##Revisar si una matriz es Hermitiana                                          #16
-#def esMatrizHermitiana():
-
-
-
-
+hermitiana = [[(5,0),(4,5),(6,-16)],[(4,-5),(13,0),(7,0)],[(6,16),(7,0),(-2.1,0)]]
+esMatrizHermitiana(hermitiana)
 
 ##Producto tensor de dos matrices/vectores                                      #17
-#def productoTensor():
-
+def productoTensor(matriz, matriz1):
+    tensor = []
+    for i in range(len(matriz)*len(matriz1)):
+        tensor.append([0] * len(matriz)*len(matriz1))
+    for i in range(len(matriz)): # -> fila matriz
+        for j in range(len(matriz)): # -> Fila elemento a
+            for k in range(len(matriz)): # -> Elemento a 1 o 2
+                for z in range(len(matriz[i])): # -> -> elemento 1 o 2
+                    numeroA = matriz[i][j]
+                    numeroB = matriz[k][z]
+                    tensor[i][j] = numeroA * numeroB
+    return tensor
+matriz = [[1,1],[1,1]],[[1,1],[1,1]]
+productoTensor(matriz)
